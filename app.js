@@ -720,12 +720,24 @@
     });
 
     btnToggleMode.addEventListener('click', () => {
+      const pin = prompt('Digite a senha de administrador (951233) para alterar o modo:');
+      const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '951233';
+
+      if (pin !== expectedPin) {
+        if (pin !== null && pin !== '') {
+          playErrorSound();
+          alert('Senha incorreta. Alteração de modo bloqueada.');
+        }
+        return;
+      }
+
       mode = (mode === 'exam') ? 'study' : 'exam';
       currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
       if (welcomeScreen.style.display === 'none') {
         renderQuestion(currentIndex);
       }
-      alert(`Modo alterado para: ${mode === 'exam' ? 'Modo Avaliação (resultado no final)' : 'Modo Treino (feedback imediato)'}`);
+      playSuccessSound();
+      alert(`Modo alterado com sucesso para: ${mode === 'exam' ? 'Modo Avaliação (resultado no final)' : 'Modo Treino (feedback imediato)'}`);
     });
 
     btnSound.addEventListener('click', () => {
