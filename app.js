@@ -129,8 +129,9 @@
     if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) {
       if (!window.SUPABASE_CONFIG.url.includes('SEU-PROJETO')) {
         try {
-          supabase = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
-          console.log('✓ Supabase conectado com sucesso.');
+          const cleanUrl = window.SUPABASE_CONFIG.url.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+          supabase = window.supabase.createClient(cleanUrl, window.SUPABASE_CONFIG.anonKey);
+          console.log('✓ Supabase conectado com sucesso em:', cleanUrl);
         } catch (e) {
           console.warn('Não foi possível conectar ao Supabase:', e);
         }
