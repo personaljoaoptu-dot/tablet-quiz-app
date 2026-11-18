@@ -753,25 +753,45 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 40px 32px;
-  max-width: 480px;
+  padding: 44px 34px;
+  max-width: 500px;
   width: 100%;
   text-align: center;
   box-shadow: var(--shadow-lg);
   animation: fadeIn 0.3s ease;
 }
 
-.lock-card h2 {
-  font-size: 24px;
+.lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(202, 138, 4, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #facc15;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.lock-app-title {
+  font-size: 28px;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 40%, #facc15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .lock-subtitle {
   color: var(--text-muted);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* ==========================================================================
