@@ -1,5 +1,6 @@
 /**
  * Avaliação Garden Gold - Mecânica da Aplicação Web para Tablet Android
+ * Com suporte a Banco de Dados na Nuvem (Supabase) + Painel de Relatórios
  */
 
 (function () {
@@ -9,10 +10,14 @@
   let questions = [];
   let currentIndex = 0;
   let userAnswers = {}; // { [qIndex]: { selectedIndex: number, isCorrect: boolean } }
-  let mode = 'exam'; // 'exam' (modo avaliação padrão) ou 'study' (treino com feedback na hora)
+  let mode = 'exam'; // 'exam' (modo avaliação) ou 'study' (treino com feedback na hora)
   let soundEnabled = true;
   let candidateName = '';
   let examStartTime = null;
+
+  // Cliente do Banco em Nuvem (Supabase)
+  let supabase = null;
+  let allEvaluationsCache = [];
 
   // --- Elementos do DOM ---
   const welcomeScreen = document.getElementById('welcome-screen');
@@ -40,8 +45,26 @@
   const resultScreen = document.getElementById('result-screen');
   const resultStudentName = document.getElementById('result-student-name');
   const resultDate = document.getElementById('result-date');
+  const cloudSyncStatus = document.getElementById('cloud-sync-status');
   const btnNewParticipant = document.getElementById('btn-new-participant');
   const btnRestart = document.getElementById('btn-restart');
+
+  // Painel de Relatórios / Admin
+  const btnAdmin = document.getElementById('btn-admin');
+  const adminModal = document.getElementById('admin-modal');
+  const adminModalClose = document.getElementById('admin-modal-close');
+  const adminTableBody = document.getElementById('admin-table-body');
+  const adminSearch = document.getElementById('admin-search');
+  const btnRefreshReports = document.getElementById('btn-refresh-reports');
+  const btnExportCsv = document.getElementById('btn-export-csv');
+  const adminTotalParticipants = document.getElementById('admin-total-participants');
+  const adminAverageScore = document.getElementById('admin-average-score');
+
+  // Modal Detalhes do Aluno
+  const detailModal = document.getElementById('detail-modal');
+  const detailCandidateTitle = document.getElementById('detail-candidate-title');
+  const detailBody = document.getElementById('detail-body');
+  const detailModalClose = document.getElementById('detail-modal-close');
 
   // Modais e Controles Globais
   const lightbox = document.getElementById('lightbox');
@@ -57,7 +80,7 @@
   // Letras das alternativas
   const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-  // --- Efeitos Sonoros com Web Audio API (Offline & Instantâneo) ---
+  // --- Efeitos Sonoros com Web Audio API ---
   const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
 
   function playTone(freq, duration, type = 'sine') {
@@ -96,9 +119,23 @@
 
   // --- Inicialização ---
   async function initApp() {
+    initSupabase();
     setupEventListeners();
     currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
     await loadQuestions();
+  }
+
+  function initSupabase() {
+    if (window.supabase && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) {
+      if (!window.SUPABASE_CONFIG.url.includes('SEU-PROJETO')) {
+        try {
+          supabase = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
+          console.log('✓ Supabase conectado com sucesso.');
+        } catch (e) {
+          console.warn('Não foi possível conectar ao Supabase:', e);
+        }
+      }
+    }
   }
 
   async function loadQuestions() {
@@ -145,7 +182,6 @@
     currentIndex = 0;
     userAnswers = {};
 
-    // Esconde tela inicial e exibe o teste
     welcomeScreen.style.display = 'none';
     resultScreen.classList.remove('active');
     quizTopBar.style.display = 'flex';
@@ -172,13 +208,7 @@
     updateFeedbackBox(index);
 
     btnPrev.disabled = index === 0;
-
-    if (mode === 'study') {
-      btnNext.disabled = userAnswers[index] === undefined;
-    } else {
-      btnNext.disabled = userAnswers[index] === undefined;
-    }
-
+    btnNext.disabled = userAnswers[index] === undefined;
     btnNext.textContent = (index === questions.length - 1) ? 'Finalizar e Entregar ✓' : 'Próxima Questão →';
   }
 
@@ -271,7 +301,6 @@
       renderQuestion(qIndex);
       updateScoreDisplay();
     } else {
-      // Modo Avaliação (Prova)
       playClickSound();
       renderQuestion(qIndex);
     }
@@ -309,8 +338,8 @@
     scoreCounter.textContent = score;
   }
 
-  // --- Finalização e Resultados ---
-  function showResults() {
+  // --- Finalização e Envio para Banco de Dados ---
+  async function showResults() {
     quizArea.style.display = 'none';
     quizTopBar.style.display = 'none';
     resultScreen.classList.add('active');
@@ -341,6 +370,23 @@
     else if (percentage >= 60) emojiEl.textContent = '👍';
     else emojiEl.textContent = '📝';
 
+    // Salva o relatório no banco de dados
+    await saveEvaluationToDatabase({
+      candidate_name: candidateName,
+      score: correctCount,
+      total: total,
+      percentage: percentage,
+      created_at: now.toISOString(),
+      answers: questions.map((q, idx) => ({
+        q_num: idx + 1,
+        question: q.question,
+        selected: userAnswers[idx] ? q.options[userAnswers[idx].selectedIndex] : 'Não respondida',
+        correct: q.options[q.correctIndex],
+        is_correct: userAnswers[idx] ? userAnswers[idx].isCorrect : false
+      }))
+    });
+
+    // Revisão das Questões na Tela
     const reviewList = document.getElementById('result-review-list');
     reviewList.innerHTML = '<h3 style="font-size:16px; margin-bottom:12px; font-weight:700;">Revisão das Questões:</h3>';
 
@@ -364,7 +410,182 @@
     if (percentage >= 60) playSuccessSound();
   }
 
-  // --- Próximo Candidato (Zera e volta para a tela de nome) ---
+  // --- Função de Salvamento no Banco (Supabase + LocalStorage de Backup) ---
+  async function saveEvaluationToDatabase(record) {
+    // 1. Sempre salva no LocalStorage do Tablet como garantia offline
+    try {
+      const localData = JSON.parse(localStorage.getItem('garden_gold_evaluations') || '[]');
+      localData.unshift(record);
+      localStorage.setItem('garden_gold_evaluations', JSON.stringify(localData));
+    } catch (e) {
+      console.warn('Erro ao salvar localmente:', e);
+    }
+
+    // 2. Se o Supabase estiver conectado, envia para a Nuvem
+    if (supabase) {
+      cloudSyncStatus.textContent = 'Enviando avaliação para o banco de dados em nuvem...';
+      try {
+        const { error } = await supabase.from('avaliacoes').insert([{
+          candidate_name: record.candidate_name,
+          score: record.score,
+          total: record.total,
+          percentage: record.percentage,
+          answers: record.answers,
+          created_at: record.created_at
+        }]);
+
+        if (error) throw error;
+        cloudSyncStatus.textContent = '✓ Avaliação gravada no Banco de Dados em Nuvem (Supabase)!';
+        cloudSyncStatus.style.color = 'var(--success)';
+      } catch (err) {
+        console.error('Erro ao enviar para Supabase:', err);
+        cloudSyncStatus.textContent = '⚠️ Gravado no tablet (offline). Não foi possível conectar ao banco em nuvem.';
+        cloudSyncStatus.style.color = 'var(--warning)';
+      }
+    } else {
+      cloudSyncStatus.textContent = 'ℹ️ Gravado no tablet. (Para sincronizar com a nuvem, configure o Supabase em config.js).';
+      cloudSyncStatus.style.color = 'var(--text-dim)';
+    }
+  }
+
+  // --- Painel de Relatórios do Administrador ---
+  async function openAdminPanel() {
+    const pin = prompt('Digite a senha de Administrador para acessar os relatórios:');
+    const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '1234';
+
+    if (pin !== expectedPin) {
+      if (pin !== null) alert('Senha incorreta.');
+      return;
+    }
+
+    adminModal.classList.add('active');
+    await loadReportsData();
+  }
+
+  async function loadReportsData() {
+    adminTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px;">Carregando registros...</td></tr>';
+    let data = [];
+
+    // Tenta buscar da nuvem primeiro
+    if (supabase) {
+      try {
+        const { data: cloudData, error } = await supabase
+          .from('avaliacoes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && cloudData) {
+          data = cloudData;
+        }
+      } catch (e) {
+        console.warn('Falha ao carregar do Supabase:', e);
+      }
+    }
+
+    // Se a nuvem falhou ou não está configurada, usa o histórico local do tablet
+    if (!data || data.length === 0) {
+      data = JSON.parse(localStorage.getItem('garden_gold_evaluations') || '[]');
+    }
+
+    allEvaluationsCache = data;
+    renderAdminTable(allEvaluationsCache);
+  }
+
+  function renderAdminTable(list) {
+    adminTableBody.innerHTML = '';
+
+    if (!list || list.length === 0) {
+      adminTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px; color: var(--text-dim);">Nenhuma avaliação registrada até o momento.</td></tr>';
+      adminTotalParticipants.textContent = '0';
+      adminAverageScore.textContent = '0%';
+      return;
+    }
+
+    adminTotalParticipants.textContent = list.length;
+    const avg = Math.round(list.reduce((acc, curr) => acc + (curr.percentage || 0), 0) / list.length);
+    adminAverageScore.textContent = `${avg}%`;
+
+    list.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : '-';
+
+      tr.innerHTML = `
+        <td style="color: var(--text-muted); font-size: 13px;">${dateStr}</td>
+        <td><strong>${item.candidate_name || 'Anônimo'}</strong></td>
+        <td><span style="color: var(--primary); font-weight:700;">${item.score} / ${item.total}</span></td>
+        <td>
+          <span style="color: ${item.percentage >= 60 ? 'var(--success)' : 'var(--danger)'}; font-weight:700;">
+            ${item.percentage}%
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-secondary btn-sm" data-idx="${index}">
+            🔍 Ver Questões
+          </button>
+        </td>
+      `;
+
+      tr.querySelector('button').addEventListener('click', () => openCandidateDetail(item));
+      adminTableBody.appendChild(tr);
+    });
+  }
+
+  // --- Visualizar Detalhes das Respostas do Candidato ---
+  function openCandidateDetail(candidate) {
+    detailCandidateTitle.textContent = `Avaliação de: ${candidate.candidate_name}`;
+    detailBody.innerHTML = `
+      <div style="margin-bottom: 16px; padding: 12px; background: var(--bg-card-alt); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+        <div><strong>Acertos:</strong> ${candidate.score} de ${candidate.total} (${candidate.percentage}%)</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Data: ${new Date(candidate.created_at).toLocaleString('pt-BR')}</div>
+      </div>
+      <h4 style="font-size: 14px; margin-bottom: 12px; font-weight:700;">Detalhamento Questão por Questão:</h4>
+    `;
+
+    if (candidate.answers && Array.isArray(candidate.answers)) {
+      candidate.answers.forEach(ans => {
+        const item = document.createElement('div');
+        item.className = `review-item ${ans.is_correct ? 'correct' : 'wrong'}`;
+        item.innerHTML = `
+          <div class="review-q">Questão #${ans.q_num}: ${ans.question}</div>
+          <div class="review-ans">Resposta marcada: <strong>${ans.selected}</strong> ${ans.is_correct ? '✓' : '✕'}</div>
+          ${!ans.is_correct ? `<div class="review-ans" style="color:var(--success);">Gabarito correto: <strong>${ans.correct}</strong></div>` : ''}
+        `;
+        detailBody.appendChild(item);
+      });
+    } else {
+      detailBody.innerHTML += '<div style="color: var(--text-dim);">Respostas detalhadas não disponíveis para este registro.</div>';
+    }
+
+    detailModal.classList.add('active');
+  }
+
+  // --- Exportar para Planilha Excel (CSV) ---
+  function exportToCsv() {
+    if (!allEvaluationsCache || allEvaluationsCache.length === 0) {
+      alert('Não há dados para exportar.');
+      return;
+    }
+
+    let csvContent = '\uFEFF'; // BOM para garantir acentos corretos no Excel brasileiro
+    csvContent += 'Data;Nome do Candidato;Acertos;Total;Porcentagem\n';
+
+    allEvaluationsCache.forEach(item => {
+      const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : '';
+      const name = (item.candidate_name || '').replace(/;/g, ' ');
+      csvContent += `"${dateStr}";"${name}";"${item.score}";"${item.total}";"${item.percentage}%"\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `relatorio_participantes_garden_gold_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // --- Reiniciar para Novo Participante ---
   function resetForNewParticipant() {
     candidateName = '';
     studentNameInput.value = '';
@@ -389,7 +610,7 @@
     updateScoreDisplay();
   }
 
-  // --- Lightbox Modal (Zoom de Imagens) ---
+  // --- Lightbox Modal ---
   function openLightbox(src, caption) {
     lightboxImg.src = src;
     lightboxCaption.textContent = caption || 'Visualização da Imagem';
@@ -428,6 +649,21 @@
 
     btnNewParticipant.addEventListener('click', resetForNewParticipant);
     btnRestart.addEventListener('click', restartCurrentQuiz);
+
+    // Admin & Relatórios
+    btnAdmin.addEventListener('click', openAdminPanel);
+    adminModalClose.addEventListener('click', () => adminModal.classList.remove('active'));
+    detailModalClose.addEventListener('click', () => detailModal.classList.remove('active'));
+    btnRefreshReports.addEventListener('click', loadReportsData);
+    btnExportCsv.addEventListener('click', exportToCsv);
+
+    adminSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = allEvaluationsCache.filter(item => 
+        (item.candidate_name || '').toLowerCase().includes(query)
+      );
+      renderAdminTable(filtered);
+    });
 
     lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (e) => {

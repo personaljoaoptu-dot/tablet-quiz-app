@@ -9,6 +9,8 @@
   <link rel="manifest" href="manifest.json">
   <title>Avaliação Garden Gold</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Supabase JS Client para Banco de Dados na Nuvem -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -20,6 +22,11 @@
     </div>
 
     <div class="header-actions">
+      <!-- Botão Painel de Relatórios / Admin (Nuvem e Histórico) -->
+      <button class="btn-icon" id="btn-admin" title="Painel de Relatórios (Resultados dos Alunos)">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      </button>
+
       <!-- Botão para carregar arquivo customizado se quiser -->
       <label class="btn-icon" title="Carregar outro arquivo de questões (.json)">
         <input type="file" id="file-loader" accept=".json" style="display:none">
@@ -98,7 +105,7 @@
         </div>
         <div class="stat-item" id="mode-label-box" title="Modo ativo">
           <span>Modo:</span>
-          <span class="stat-val" id="current-mode-label">Treino</span>
+          <span class="stat-val" id="current-mode-label">Avaliação</span>
         </div>
         <div class="stat-item">
           <span>Acertos:</span>
@@ -173,6 +180,11 @@
         </div>
       </div>
 
+      <!-- Status de Sincronização com o Banco de Dados -->
+      <div class="cloud-sync-status" id="cloud-sync-status">
+        Salvando avaliação no banco de dados em nuvem...
+      </div>
+
       <!-- Revisão das Questões -->
       <div class="result-review-list" id="result-review-list"></div>
 
@@ -188,6 +200,81 @@
 
   </main>
 
+  <!-- Modal Painel de Relatórios / Admin (Visualizar Todos os Participantes) -->
+  <div class="admin-modal" id="admin-modal">
+    <div class="admin-modal-container">
+      <div class="admin-header">
+        <div class="admin-header-title">
+          <span style="font-size: 22px;">📊</span>
+          <h2>Relatório de Participantes - Garden Gold</h2>
+        </div>
+        <button class="btn-icon" id="admin-modal-close" title="Fechar">✕</button>
+      </div>
+
+      <div class="admin-body">
+        <!-- Barra de Ações do Relatório -->
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <input type="text" id="admin-search" placeholder="Buscar por nome do candidato...">
+          </div>
+          <div class="admin-actions-group">
+            <button class="btn btn-secondary" id="btn-refresh-reports">
+              🔄 Atualizar
+            </button>
+            <button class="btn btn-primary" id="btn-export-csv">
+              📥 Exportar para Excel (CSV)
+            </button>
+          </div>
+        </div>
+
+        <!-- Indicadores Resumo -->
+        <div class="admin-stats-bar">
+          <div class="admin-stat-chip">
+            Total de Participantes: <strong id="admin-total-participants">0</strong>
+          </div>
+          <div class="admin-stat-chip">
+            Média Geral: <strong id="admin-average-score">0%</strong>
+          </div>
+        </div>
+
+        <!-- Tabela de Relatórios -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table" id="admin-table">
+            <thead>
+              <tr>
+                <th>Data / Hora</th>
+                <th>Nome do Candidato</th>
+                <th>Acertos</th>
+                <th>Aproveitamento</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <tr>
+                <td colspan="5" style="text-align:center; padding: 24px; color: var(--text-dim);">
+                  Carregando registros...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhe do Participante (Quais questões acertou/errou) -->
+  <div class="detail-modal" id="detail-modal">
+    <div class="detail-modal-container">
+      <div class="detail-header">
+        <h3 id="detail-candidate-title">Respostas de: -</h3>
+        <button class="btn-icon" id="detail-modal-close">✕</button>
+      </div>
+      <div class="detail-body" id="detail-body">
+        <!-- Detalhes questão por questão -->
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Lightbox (Para ver a imagem em tela cheia ao tocar) -->
   <div class="lightbox-modal" id="lightbox">
     <div class="lightbox-header">
@@ -199,7 +286,7 @@
     </div>
   </div>
 
-  <!-- Fallback de script caso abra via file:// ou sem servidor -->
+  <script src="config.js"></script>
   <script src="questions.js"></script>
   <script src="app.js"></script>
 </body>
