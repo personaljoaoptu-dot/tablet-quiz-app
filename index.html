@@ -50,9 +50,40 @@
 
   <!-- Container Principal -->
   <main class="main-container">
+
+    <!-- TELA INICIAL: Identificação do Participante (Nome Completo Obrigatório) -->
+    <section class="welcome-screen" id="welcome-screen">
+      <div class="welcome-card">
+        <div class="welcome-logo">🌿</div>
+        <h2>Avaliação Garden Gold</h2>
+        <p class="welcome-subtitle">Por favor, identifique-se com seu nome completo para iniciar a avaliação no tablet.</p>
+
+        <form id="form-start-quiz" class="welcome-form" onsubmit="return false;">
+          <div class="form-group">
+            <label for="student-name">Nome Completo do Candidato / Aluno:</label>
+            <input 
+              type="text" 
+              id="student-name" 
+              placeholder="Digite seu nome completo aqui..." 
+              required 
+              autocomplete="name"
+              autofocus
+            >
+          </div>
+
+          <div class="quiz-info-box" id="quiz-info-box">
+            <span id="quiz-total-count">Carregando questões...</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-large" id="btn-start-quiz">
+            Iniciar Avaliação →
+          </button>
+        </form>
+      </div>
+    </section>
     
-    <!-- Barra Superior do Quiz -->
-    <div class="quiz-top-bar" id="quiz-top-bar">
+    <!-- Barra Superior do Quiz (Durante a Avaliação) -->
+    <div class="quiz-top-bar" id="quiz-top-bar" style="display:none;">
       <div class="progress-info">
         <span class="question-badge" id="question-badge">Questão 1 de 10</span>
         <div class="progress-track">
@@ -61,6 +92,10 @@
       </div>
 
       <div class="top-stats">
+        <div class="stat-item candidate-badge" id="stat-candidate">
+          <span>Candidato:</span>
+          <span class="stat-val" id="display-student-name">-</span>
+        </div>
         <div class="stat-item" id="mode-label-box" title="Modo ativo">
           <span>Modo:</span>
           <span class="stat-val" id="current-mode-label">Treino</span>
@@ -73,7 +108,7 @@
     </div>
 
     <!-- Área da Pergunta (Layout Split Paisagem / Coluna Retrato) -->
-    <div class="quiz-content-split" id="quiz-area">
+    <div class="quiz-content-split" id="quiz-area" style="display:none;">
       
       <!-- Coluna da Esquerda: Enunciado e Imagens -->
       <section class="panel-question">
@@ -116,21 +151,24 @@
     <!-- Tela de Resultados Finais -->
     <div class="result-screen" id="result-screen">
       <div class="result-badge" id="result-emoji">🏆</div>
-      <h2 style="font-size: 26px; margin-bottom: 8px;">Simulado Concluído!</h2>
-      <div class="result-score" id="result-score">8 / 10</div>
-      <div class="result-percentage" id="result-percentage">80% de Aproveitamento</div>
+      <h2 style="font-size: 26px; margin-bottom: 4px;">Avaliação Concluída!</h2>
+      <p class="result-candidate-name">Candidato(a): <strong id="result-student-name">-</strong></p>
+      <p class="result-date" id="result-date">-</p>
+
+      <div class="result-score" id="result-score">0 / 0</div>
+      <div class="result-percentage" id="result-percentage">0% de Aproveitamento</div>
 
       <div class="result-stats-grid">
         <div class="result-stat-card">
-          <div class="val" id="stat-total" style="color: var(--primary);">10</div>
+          <div class="val" id="stat-total" style="color: var(--primary);">0</div>
           <div class="lbl">Questões</div>
         </div>
         <div class="result-stat-card">
-          <div class="val" id="stat-correct" style="color: var(--success);">8</div>
+          <div class="val" id="stat-correct" style="color: var(--success);">0</div>
           <div class="lbl">Acertos</div>
         </div>
         <div class="result-stat-card">
-          <div class="val" id="stat-wrong" style="color: var(--danger);">2</div>
+          <div class="val" id="stat-wrong" style="color: var(--danger);">0</div>
           <div class="lbl">Erros</div>
         </div>
       </div>
@@ -138,9 +176,12 @@
       <!-- Revisão das Questões -->
       <div class="result-review-list" id="result-review-list"></div>
 
-      <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center;">
-        <button class="btn btn-primary" id="btn-restart">
-          ↺ Reiniciar Simulado
+      <div style="margin-top: 28px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-large" id="btn-new-participant">
+          👤 Próximo Candidato (Novo Teste)
+        </button>
+        <button class="btn btn-secondary" id="btn-restart">
+          ↺ Refazer Avaliação
         </button>
       </div>
     </div>

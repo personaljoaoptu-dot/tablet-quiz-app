@@ -1,5 +1,5 @@
 /**
- * Quiz Tablet Pro - Mecânica da Aplicação Web
+ * Avaliação Garden Gold - Mecânica da Aplicação Web para Tablet Android
  */
 
 (function () {
@@ -9,10 +9,20 @@
   let questions = [];
   let currentIndex = 0;
   let userAnswers = {}; // { [qIndex]: { selectedIndex: number, isCorrect: boolean } }
-  let mode = 'study'; // 'study' (mostra resposta na hora) ou 'exam' (apenas no final)
+  let mode = 'exam'; // 'exam' (modo avaliação padrão) ou 'study' (treino com feedback na hora)
   let soundEnabled = true;
+  let candidateName = '';
+  let examStartTime = null;
 
   // --- Elementos do DOM ---
+  const welcomeScreen = document.getElementById('welcome-screen');
+  const studentNameInput = document.getElementById('student-name');
+  const formStartQuiz = document.getElementById('form-start-quiz');
+  const quizTotalCount = document.getElementById('quiz-total-count');
+  const displayStudentName = document.getElementById('display-student-name');
+
+  const quizTopBar = document.getElementById('quiz-top-bar');
+  const quizArea = document.getElementById('quiz-area');
   const questionBadge = document.getElementById('question-badge');
   const progressFill = document.getElementById('progress-fill');
   const scoreCounter = document.getElementById('score-counter');
@@ -25,11 +35,15 @@
   const feedbackText = document.getElementById('feedback-text');
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
-  const quizArea = document.getElementById('quiz-area');
-  const quizTopBar = document.getElementById('quiz-top-bar');
-  const resultScreen = document.getElementById('result-screen');
 
-  // Modais e Controles
+  // Tela de Resultados
+  const resultScreen = document.getElementById('result-screen');
+  const resultStudentName = document.getElementById('result-student-name');
+  const resultDate = document.getElementById('result-date');
+  const btnNewParticipant = document.getElementById('btn-new-participant');
+  const btnRestart = document.getElementById('btn-restart');
+
+  // Modais e Controles Globais
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
   const lightboxCaption = document.getElementById('lightbox-caption');
@@ -39,7 +53,6 @@
   const btnTheme = document.getElementById('btn-theme');
   const btnFullscreen = document.getElementById('btn-fullscreen');
   const fileLoader = document.getElementById('file-loader');
-  const btnRestart = document.getElementById('btn-restart');
 
   // Letras das alternativas
   const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -67,9 +80,9 @@
   }
 
   function playSuccessSound() {
-    playTone(523.25, 0.12); // C5
-    setTimeout(() => playTone(659.25, 0.15), 100); // E5
-    setTimeout(() => playTone(783.99, 0.25), 200); // G5
+    playTone(523.25, 0.12);
+    setTimeout(() => playTone(659.25, 0.15), 100);
+    setTimeout(() => playTone(783.99, 0.25), 200);
   }
 
   function playErrorSound() {
@@ -81,35 +94,64 @@
     playTone(400, 0.04);
   }
 
-  // --- Inicialização e Carga de Questões ---
+  // --- Inicialização ---
   async function initApp() {
     setupEventListeners();
+    currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
     await loadQuestions();
   }
 
   async function loadQuestions() {
     try {
-      // Tenta buscar o arquivo questions.json
-      const response = await fetch('questions.json');
+      const response = await fetch('questions.json?t=' + Date.now());
       if (!response.ok) throw new Error('Falha ao carregar JSON');
       const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         questions = data;
-      } else {
-        throw new Error('Formato inválido');
       }
     } catch (err) {
       console.warn('Usando fallback window.QUIZ_QUESTIONS:', err);
-      if (window.QUIZ_QUESTIONS && window.QUIZ_QUESTIONS.length > 0) {
+      if (window.QUIZ_QUESTIONS && Array.isArray(window.QUIZ_QUESTIONS)) {
         questions = window.QUIZ_QUESTIONS;
-      } else {
-        questionText.textContent = 'Nenhuma questão encontrada no arquivo questions.json ou questions.js.';
-        return;
       }
     }
 
+    if (questions.length === 0) {
+      quizTotalCount.textContent = 'Nenhuma questão cadastrada ainda no arquivo questions.json.';
+      quizTotalCount.style.color = 'var(--warning)';
+    } else {
+      quizTotalCount.textContent = `Total de questões disponíveis: ${questions.length}`;
+      quizTotalCount.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // --- Iniciar Avaliação com o Nome Completo ---
+  function handleStartQuiz() {
+    const name = studentNameInput.value.trim();
+    if (!name) {
+      alert('Por favor, informe seu nome completo antes de iniciar.');
+      studentNameInput.focus();
+      return;
+    }
+
+    if (questions.length === 0) {
+      alert('Ainda não há questões cadastradas em questions.json. Adicione as questões para iniciar!');
+      return;
+    }
+
+    candidateName = name;
+    displayStudentName.textContent = candidateName;
+    examStartTime = new Date();
     currentIndex = 0;
     userAnswers = {};
+
+    // Esconde tela inicial e exibe o teste
+    welcomeScreen.style.display = 'none';
+    resultScreen.classList.remove('active');
+    quizTopBar.style.display = 'flex';
+    quizArea.style.display = 'grid';
+
+    playClickSound();
     renderQuestion(currentIndex);
     updateScoreDisplay();
   }
@@ -119,33 +161,25 @@
     if (!questions || questions.length === 0) return;
     const q = questions[index];
 
-    // Atualiza Barra de Progresso
     questionBadge.textContent = `Questão ${index + 1} de ${questions.length}`;
     const progressPercent = ((index + 1) / questions.length) * 100;
     progressFill.style.width = `${progressPercent}%`;
 
-    // Atualiza Enunciado
     questionText.textContent = q.question;
 
-    // Renderiza Imagens (1, 2 ou mais)
     renderImages(q.images);
-
-    // Renderiza Alternativas
     renderOptions(q, index);
-
-    // Atualiza Feedback Box se já foi respondida
     updateFeedbackBox(index);
 
-    // Controles de Navegação
     btnPrev.disabled = index === 0;
-    
+
     if (mode === 'study') {
       btnNext.disabled = userAnswers[index] === undefined;
     } else {
-      btnNext.disabled = false;
+      btnNext.disabled = userAnswers[index] === undefined;
     }
 
-    btnNext.textContent = (index === questions.length - 1) ? 'Finalizar Simulado ✓' : 'Próxima Questão →';
+    btnNext.textContent = (index === questions.length - 1) ? 'Finalizar e Entregar ✓' : 'Próxima Questão →';
   }
 
   // --- Renderizador de Imagens Múltiplas ---
@@ -162,7 +196,6 @@
     imagesContainer.className = `images-container count-${Math.min(count, 4)}`;
 
     images.forEach((imgItem, idx) => {
-      // Suporta formato direto string ou objeto com legenda
       const src = typeof imgItem === 'string' ? imgItem : imgItem.src;
       const caption = typeof imgItem === 'object' && imgItem.caption ? imgItem.caption : `Imagem ${idx + 1}`;
 
@@ -222,7 +255,7 @@
     });
   }
 
-  // --- Manipulação da Escolha do Usuário ---
+  // --- Manipulação da Resposta ---
   function handleSelectOption(qIndex, selectedIndex) {
     const q = questions[qIndex];
     const isCorrect = selectedIndex === q.correctIndex;
@@ -233,21 +266,18 @@
     };
 
     if (mode === 'study') {
-      if (isCorrect) {
-        playSuccessSound();
-      } else {
-        playErrorSound();
-      }
+      if (isCorrect) playSuccessSound();
+      else playErrorSound();
       renderQuestion(qIndex);
       updateScoreDisplay();
     } else {
-      // Modo Prova (Exam): Apenas registra e marca selecionado
+      // Modo Avaliação (Prova)
       playClickSound();
       renderQuestion(qIndex);
     }
   }
 
-  // --- Feedback Box (Explicação) ---
+  // --- Feedback Box (Modo Estudo) ---
   function updateFeedbackBox(qIndex) {
     const answerInfo = userAnswers[qIndex];
     const q = questions[qIndex];
@@ -261,17 +291,16 @@
     feedbackBox.style.display = 'block';
     if (answerInfo.isCorrect) {
       feedbackBox.className = 'feedback-box active correct';
-      feedbackTitle.innerHTML = '✓ Parabéns! Resposta Correta.';
+      feedbackTitle.innerHTML = '✓ Resposta Correta!';
     } else {
       feedbackBox.className = 'feedback-box active wrong';
       const correctLetter = OPTION_LETTERS[q.correctIndex] || (q.correctIndex + 1);
-      feedbackTitle.innerHTML = `✕ Incorreto. A alternativa correta é a (${correctLetter}).`;
+      feedbackTitle.innerHTML = `✕ Alternativa correta: (${correctLetter})`;
     }
 
-    feedbackText.textContent = q.explanation || 'Sem explicação adicional cadastrada.';
+    feedbackText.textContent = q.explanation || 'Sem explicação adicional.';
   }
 
-  // --- Atualização do Score ---
   function updateScoreDisplay() {
     let score = 0;
     Object.values(userAnswers).forEach(ans => {
@@ -280,11 +309,15 @@
     scoreCounter.textContent = score;
   }
 
-  // --- Finalização e Tela de Resultados ---
+  // --- Finalização e Resultados ---
   function showResults() {
     quizArea.style.display = 'none';
     quizTopBar.style.display = 'none';
     resultScreen.classList.add('active');
+
+    resultStudentName.textContent = candidateName || 'Não identificado';
+    const now = new Date();
+    resultDate.textContent = `Realizado em: ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR')}`;
 
     let correctCount = 0;
     questions.forEach((q, idx) => {
@@ -303,15 +336,13 @@
     document.getElementById('stat-correct').textContent = correctCount;
     document.getElementById('stat-wrong').textContent = wrongCount;
 
-    // Emoji de acordo com a nota
     const emojiEl = document.getElementById('result-emoji');
     if (percentage >= 80) emojiEl.textContent = '🏆';
     else if (percentage >= 60) emojiEl.textContent = '👍';
-    else emojiEl.textContent = '📚';
+    else emojiEl.textContent = '📝';
 
-    // Lista de Revisão
     const reviewList = document.getElementById('result-review-list');
-    reviewList.innerHTML = '<h3 style="font-size:16px; margin-bottom:12px; font-weight:700;">Revisão de Todas as Questões:</h3>';
+    reviewList.innerHTML = '<h3 style="font-size:16px; margin-bottom:12px; font-weight:700;">Revisão das Questões:</h3>';
 
     questions.forEach((q, idx) => {
       const userAns = userAnswers[idx];
@@ -323,19 +354,32 @@
       item.className = `review-item ${isRight ? 'correct' : 'wrong'}`;
       item.innerHTML = `
         <div class="review-q">#${idx + 1}: ${q.question}</div>
-        <div class="review-ans">Sua resposta: <strong>${userChoiceText}</strong> ${isRight ? '✓' : '✕'}</div>
-        ${!isRight ? `<div class="review-ans" style="color:var(--success);">Correta: <strong>${correctChoiceText}</strong></div>` : ''}
-        ${q.explanation ? `<div class="review-ans" style="margin-top:4px; font-style:italic;">Nota: ${q.explanation}</div>` : ''}
+        <div class="review-ans">Resposta informada: <strong>${userChoiceText}</strong> ${isRight ? '✓' : '✕'}</div>
+        ${!isRight ? `<div class="review-ans" style="color:var(--success);">Gabarito: <strong>${correctChoiceText}</strong></div>` : ''}
+        ${q.explanation ? `<div class="review-ans" style="margin-top:4px; font-style:italic;">Explicação: ${q.explanation}</div>` : ''}
       `;
       reviewList.appendChild(item);
     });
 
-    if (percentage >= 60) {
-      playSuccessSound();
-    }
+    if (percentage >= 60) playSuccessSound();
   }
 
-  function restartQuiz() {
+  // --- Próximo Candidato (Zera e volta para a tela de nome) ---
+  function resetForNewParticipant() {
+    candidateName = '';
+    studentNameInput.value = '';
+    currentIndex = 0;
+    userAnswers = {};
+
+    resultScreen.classList.remove('active');
+    quizArea.style.display = 'none';
+    quizTopBar.style.display = 'none';
+    welcomeScreen.style.display = 'flex';
+
+    setTimeout(() => studentNameInput.focus(), 200);
+  }
+
+  function restartCurrentQuiz() {
     currentIndex = 0;
     userAnswers = {};
     resultScreen.classList.remove('active');
@@ -357,9 +401,13 @@
     lightboxImg.src = '';
   }
 
-  // --- Event Listeners Globais ---
+  // --- Event Listeners ---
   function setupEventListeners() {
-    // Navegação
+    formStartQuiz.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleStartQuiz();
+    });
+
     btnPrev.addEventListener('click', () => {
       if (currentIndex > 0) {
         currentIndex--;
@@ -378,9 +426,9 @@
       }
     });
 
-    btnRestart.addEventListener('click', restartQuiz);
+    btnNewParticipant.addEventListener('click', resetForNewParticipant);
+    btnRestart.addEventListener('click', restartCurrentQuiz);
 
-    // Lightbox
     lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (e) => {
       if (e.target === lightbox || e.target === document.getElementById('lightbox-content')) {
@@ -388,44 +436,38 @@
       }
     });
 
-    // Modo: Estudo vs Avaliação
     btnToggleMode.addEventListener('click', () => {
-      mode = (mode === 'study') ? 'exam' : 'study';
-      currentModeLabel.textContent = (mode === 'study') ? 'Treino' : 'Prova';
-      renderQuestion(currentIndex);
-      alert(`Modo alterado para: ${mode === 'study' ? 'Modo Treino (feedback imediato e explicação)' : 'Modo Prova (resultado apenas no final)'}`);
+      mode = (mode === 'exam') ? 'study' : 'exam';
+      currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
+      if (welcomeScreen.style.display === 'none') {
+        renderQuestion(currentIndex);
+      }
+      alert(`Modo alterado para: ${mode === 'exam' ? 'Modo Avaliação (resultado no final)' : 'Modo Treino (feedback imediato)'}`);
     });
 
-    // Som
     btnSound.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       btnSound.style.opacity = soundEnabled ? '1' : '0.4';
       if (soundEnabled) playSuccessSound();
     });
 
-    // Tema Claro / Escuro
     btnTheme.addEventListener('click', () => {
       document.body.classList.toggle('light-theme');
-      const isLight = document.body.classList.contains('light-theme');
-      localStorage.setItem('quiz_theme', isLight ? 'light' : 'dark');
+      localStorage.setItem('quiz_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
     });
 
     if (localStorage.getItem('quiz_theme') === 'light') {
       document.body.classList.add('light-theme');
     }
 
-    // Tela Cheia (Essencial para Tablet Android)
     btnFullscreen.addEventListener('click', () => {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        }
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
       }
     });
 
-    // Carregamento de arquivo JSON avulso pelo usuário
     fileLoader.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -435,7 +477,8 @@
           const parsed = JSON.parse(event.target.result);
           if (Array.isArray(parsed) && parsed.length > 0) {
             questions = parsed;
-            restartQuiz();
+            quizTotalCount.textContent = `Total de questões carregadas: ${questions.length}`;
+            resetForNewParticipant();
             alert(`Carregadas ${questions.length} questões com sucesso!`);
           } else {
             alert('O arquivo selecionado não contém uma lista válida de questões.');
@@ -446,23 +489,7 @@
       };
       reader.readAsText(file);
     });
-
-    // Teclas de atalho para tablet com teclado conectado (A, B, C, D, setas)
-    window.addEventListener('keydown', (e) => {
-      const key = e.key.toUpperCase();
-      if (['A', 'B', 'C', 'D'].includes(key)) {
-        const idx = key.charCodeAt(0) - 65;
-        if (questions[currentIndex] && questions[currentIndex].options[idx]) {
-          handleSelectOption(currentIndex, idx);
-        }
-      } else if (e.key === 'ArrowRight' && !btnNext.disabled) {
-        btnNext.click();
-      } else if (e.key === 'ArrowLeft' && !btnPrev.disabled) {
-        btnPrev.click();
-      }
-    });
   }
 
-  // Inicia a aplicação
   window.addEventListener('DOMContentLoaded', initApp);
 })();

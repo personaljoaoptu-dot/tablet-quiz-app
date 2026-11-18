@@ -716,3 +716,128 @@ body {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ==========================================================================
+   Tela Inicial de Boas-Vindas e Identificação do Aluno / Candidato
+   ========================================================================== */
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.35s ease;
+}
+
+.welcome-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  max-width: 580px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.welcome-logo {
+  font-size: 52px;
+  margin-bottom: 16px;
+  display: inline-block;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.welcome-card h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.welcome-subtitle {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 18px;
+  background: var(--bg-card-alt);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 18px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.quiz-info-box {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: center;
+}
+
+.btn-large {
+  min-height: 58px;
+  font-size: 18px;
+  width: 100%;
+}
+
+.candidate-badge {
+  background: var(--bg-card-alt);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.result-candidate-name {
+  font-size: 18px;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.result-candidate-name strong {
+  color: var(--primary);
+}
+
+.result-date {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
