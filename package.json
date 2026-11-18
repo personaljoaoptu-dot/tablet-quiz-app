@@ -1,0 +1,11 @@
+{
+  "name": "quiz-tablet-app",
+  "version": "1.0.0",
+  "description": "Aplicativo web de múltipla escolha com imagens para Tablet Android",
+  "scripts": {
+    "start": "serve -l 8080"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

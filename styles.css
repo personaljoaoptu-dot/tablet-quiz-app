@@ -1,0 +1,716 @@
+/* ==========================================================================
+   Quiz Tablet Pro - Folha de Estilos Otimizada para Tablet Android
+   ========================================================================== */
+
+:root {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.12);
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.15);
+  --danger: #ef4444;
+  --danger-light: rgba(239, 68, 68, 0.15);
+  --warning: #f59e0b;
+  
+  --bg-main: #0b0f19;
+  --bg-card: #131b2e;
+  --bg-card-alt: #1a243c;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(59, 130, 246, 0.5);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --touch-target-min: 54px;
+}
+
+/* Tema Claro Opcional */
+body.light-theme {
+  --bg-main: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f8fafc;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(59, 130, 246, 0.6);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+/* ==========================================================================
+   Header Superior
+   ========================================================================== */
+.app-header {
+  height: 64px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), #8b5cf6);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: white;
+}
+
+.brand h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover, .btn-icon:active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--border-active);
+}
+
+.btn-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* ==========================================================================
+   Layout Principal (Otimizado para Tablet)
+   ========================================================================== */
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Barra de Progresso e Meta Info */
+.quiz-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  background: var(--bg-card);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.question-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-active);
+  white-space: nowrap;
+}
+
+.progress-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #60a5fa);
+  border-radius: var(--radius-full);
+  width: 0%;
+  transition: width 0.35s ease;
+}
+
+.top-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-val {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* Split Layout (Landscape no Tablet) */
+.quiz-content-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+  align-items: start;
+}
+
+/* Seletor de layout no Tablet retrato */
+@media (max-width: 900px) {
+  .quiz-content-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Coluna 1: Pergunta e Imagens */
+.panel-question {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.question-text {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-main);
+  user-select: text;
+}
+
+/* Galeria de Imagens da Pergunta */
+.images-container {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.images-container.count-1 {
+  grid-template-columns: 1fr;
+}
+
+.images-container.count-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.images-container.count-3,
+.images-container.count-4 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.image-card {
+  position: relative;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card:hover, .image-card:active {
+  transform: translateY(-2px);
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-sm);
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 65%; /* Proporção 16:10 ideal para esquemas/fotos */
+  background: #00000020;
+}
+
+.image-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+  transition: transform 0.2s ease;
+}
+
+.zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.image-caption {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  background: var(--bg-card-alt);
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Coluna 2: Alternativas e Ações */
+.panel-answers {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.panel-header {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-button {
+  min-height: var(--touch-target-min);
+  background: var(--bg-card-alt);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 17px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  outline: none;
+}
+
+.option-letter {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.option-text {
+  flex: 1;
+  line-height: 1.35;
+}
+
+/* Estados de Seleção e Resposta */
+.option-button:hover:not(:disabled) {
+  border-color: var(--border-active);
+  background: var(--primary-light);
+}
+
+.option-button:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.option-button.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.option-button.selected .option-letter {
+  background: var(--primary);
+  color: #fff;
+}
+
+.option-button.correct {
+  border-color: var(--success) !important;
+  background: var(--success-light) !important;
+}
+
+.option-button.correct .option-letter {
+  background: var(--success) !important;
+  color: #fff !important;
+}
+
+.option-button.wrong {
+  border-color: var(--danger) !important;
+  background: var(--danger-light) !important;
+}
+
+.option-button.wrong .option-letter {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+
+.option-button:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Caixa de Feedback / Explicação */
+.feedback-box {
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card-alt);
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.feedback-box.active {
+  display: block;
+}
+
+.feedback-box.correct {
+  border-color: var(--success);
+  background: var(--success-light);
+}
+
+.feedback-box.wrong {
+  border-color: var(--danger);
+  background: var(--danger-light);
+}
+
+.feedback-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-text {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-main);
+  user-select: text;
+}
+
+/* Rodapé de Ações */
+.quiz-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  gap: 12px;
+}
+
+.btn {
+  min-height: 52px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background: var(--bg-card-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover, .btn-secondary:active {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:hover, .btn-primary:active {
+  background: var(--primary-hover);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   Modal Lightbox de Zoom de Imagem (Essencial para Tablet)
+   ========================================================================== */
+.lightbox-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 8, 15, 0.94);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.lightbox-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-header {
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.lightbox-title {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.lightbox-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+}
+
+.lightbox-content img {
+  max-width: 95%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s ease;
+}
+
+/* ==========================================================================
+   Tela de Resultados Finais
+   ========================================================================== */
+.result-screen {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 32px 24px;
+  text-align: center;
+  max-width: 700px;
+  margin: 30px auto;
+  box-shadow: var(--shadow-lg);
+  display: none;
+}
+
+.result-screen.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.result-badge {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 20px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  background: var(--primary-light);
+  border: 2px solid var(--primary);
+}
+
+.result-score {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.result-percentage {
+  font-size: 20px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.result-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.result-stat-card {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  padding: 14px;
+  border-radius: var(--radius-md);
+}
+
+.result-stat-card .val {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.result-stat-card .lbl {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.result-review-list {
+  text-align: left;
+  margin-top: 24px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.review-item {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card-alt);
+  margin-bottom: 10px;
+  border-left: 4px solid var(--text-dim);
+}
+
+.review-item.correct {
+  border-left-color: var(--success);
+}
+
+.review-item.wrong {
+  border-left-color: var(--danger);
+}
+
+.review-q {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.review-ans {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
