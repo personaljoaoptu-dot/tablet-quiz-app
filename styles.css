@@ -768,29 +768,41 @@ body {
   background: rgba(202, 138, 4, 0.15);
   border: 1px solid rgba(234, 179, 8, 0.4);
   color: #facc15;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  padding: 5px 14px;
+  padding: 6px 16px;
   border-radius: var(--radius-full);
   margin-bottom: 14px;
   text-transform: uppercase;
 }
 
-.lock-app-title {
-  font-size: 28px;
+body.light-theme .lock-badge {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.lock-app-title, .welcome-title {
+  font-size: 30px;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 40%, #facc15 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+}
+
+.gold-highlight {
+  color: #ca8a04;
+  font-weight: 800;
+}
+
+body.light-theme .gold-highlight {
+  color: #b45309;
 }
 
 .lock-subtitle {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
 }
 
@@ -821,17 +833,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .welcome-main-logo {
-  max-height: 84px;
-  max-width: 220px;
+  max-height: 145px;
+  max-width: 320px;
+  width: 90%;
   object-fit: contain;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   background: #ffffff;
-  padding: 6px;
+  padding: 12px 18px;
 }
 
 .welcome-logo {

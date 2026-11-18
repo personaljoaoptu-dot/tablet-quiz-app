@@ -470,7 +470,7 @@
   // --- Painel de Relatórios do Administrador ---
   async function openAdminPanel() {
     const pin = prompt('Digite a senha de Administrador para acessar os relatórios:');
-    const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '1234';
+    const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '951233';
 
     if (pin !== expectedPin) {
       if (pin !== null) alert('Senha incorreta.');
@@ -675,7 +675,7 @@
       const enteredPin = appUnlockPin.value.trim();
       const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '951233';
 
-      if (enteredPin === expectedPin || enteredPin === '1234') {
+      if (enteredPin === expectedPin) {
         sessionStorage.setItem('garden_gold_unlocked', 'true');
         appLockScreen.classList.add('unlocked');
         unlockError.style.display = 'none';
