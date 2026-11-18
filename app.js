@@ -687,10 +687,9 @@
     btnRestart.addEventListener('click', restartCurrentQuiz);
 
     // Desbloqueio e Bloqueio do Aplicativo (Admin PIN)
-    formUnlockApp.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const enteredPin = appUnlockPin.value.trim();
-      const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '951233';
+    function handleUnlock() {
+      const enteredPin = (appUnlockPin.value || '').trim();
+      const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? String(window.SUPABASE_CONFIG.adminPin).trim() : '951233';
 
       if (enteredPin === expectedPin) {
         sessionStorage.setItem('garden_gold_unlocked', 'true');
@@ -699,14 +698,44 @@
         appUnlockPin.value = '';
         playSuccessSound();
         tryEnableFullscreen();
-        setTimeout(() => studentNameInput.focus(), 250);
+        setTimeout(() => {
+          if (studentNameInput) studentNameInput.focus();
+        }, 250);
       } else {
         playErrorSound();
         unlockError.style.display = 'block';
         appUnlockPin.value = '';
-        appUnlockPin.focus();
+        setTimeout(() => appUnlockPin.focus(), 100);
       }
-    });
+    }
+
+    const btnUnlockApp = document.getElementById('btn-unlock-app');
+    if (btnUnlockApp) {
+      btnUnlockApp.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleUnlock();
+      });
+      btnUnlockApp.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleUnlock();
+      });
+    }
+
+    if (formUnlockApp) {
+      formUnlockApp.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleUnlock();
+      });
+    }
+
+    if (appUnlockPin) {
+      appUnlockPin.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleUnlock();
+        }
+      });
+    }
 
     btnLockApp.addEventListener('click', () => {
       sessionStorage.removeItem('garden_gold_unlocked');
@@ -804,5 +833,9 @@
     });
   }
 
-  window.addEventListener('DOMContentLoaded', initApp);
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 })();

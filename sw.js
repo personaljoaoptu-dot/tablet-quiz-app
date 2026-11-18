@@ -3,7 +3,7 @@
  * Habilita instalação PWA (WebAPK) no Android Chrome e suporte offline
  */
 
-const CACHE_NAME = 'garden-gold-v2.8';
+const CACHE_NAME = 'garden-gold-v2.9';
 const ASSETS_TO_CACHE = [
   '/',
   '/favicon.ico',
