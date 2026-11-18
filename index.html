@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="Garden Gold">
   <meta name="theme-color" content="#0b0f19">
-  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+  <link rel="apple-touch-icon" href="/images/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
   <title>Avaliação Garden Gold</title>
   <link rel="stylesheet" href="styles.css?v=2.2">
   <!-- Supabase JS Client para Banco de Dados na Nuvem -->
@@ -340,6 +344,14 @@
         });
       });
     }
+
+    // Suporte ao evento de instalação automática do Android
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('Evento de instalação PWA pronto.');
+    });
   </script>
 </body>
 </html>
