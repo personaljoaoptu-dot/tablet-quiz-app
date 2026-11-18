@@ -17,7 +17,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
   <link rel="manifest" href="/manifest.json">
   <title>Avaliação Garden Gold</title>
-  <link rel="stylesheet" href="styles.css?v=2.6">
+  <link rel="stylesheet" href="styles.css?v=2.7">
   <!-- Supabase JS Client para Banco de Dados na Nuvem -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -118,14 +118,7 @@
           <img src="images/logo-garden-gold.png" alt="Logo Garden Gold" class="welcome-main-logo">
         </div>
         <h2 class="welcome-title">Avaliação Garden Gold</h2>
-        
-        <!-- Indicador de Modo Ativo na Tela Inicial -->
-        <div class="welcome-mode-card mode-exam" id="welcome-mode-card">
-          <span class="welcome-mode-badge" id="welcome-mode-badge">MODO AVALIAÇÃO</span>
-          <span class="welcome-mode-desc" id="welcome-mode-desc">Respostas salvas e gabarito exibido apenas no final</span>
-        </div>
-
-        <p class="welcome-subtitle">Por favor, identifique-se com seu nome completo para iniciar no tablet.</p>
+        <p class="welcome-subtitle">Por favor, identifique-se com seu nome completo para iniciar a avaliação no tablet.</p>
 
         <form id="form-start-quiz" class="welcome-form" onsubmit="return false;">
           <div class="form-group">
@@ -348,9 +341,9 @@
     </div>
   </div>
 
-  <script src="config.js?v=2.4"></script>
-  <script src="questions.js?v=2.4"></script>
-  <script src="app.js?v=2.4"></script>
+  <script src="config.js?v=2.5"></script>
+  <script src="questions.js?v=2.5"></script>
+  <script src="app.js?v=2.5"></script>
   <script>
     // Registro do Service Worker para instalação no Android (PWA)
     if ('serviceWorker' in navigator) {

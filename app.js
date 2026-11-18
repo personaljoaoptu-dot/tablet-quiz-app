@@ -33,9 +33,6 @@
   const btnStartQuiz = document.getElementById('btn-start-quiz');
   const quizTotalCount = document.getElementById('quiz-total-count');
   const displayStudentName = document.getElementById('display-student-name');
-  const welcomeModeCard = document.getElementById('welcome-mode-card');
-  const welcomeModeBadge = document.getElementById('welcome-mode-badge');
-  const welcomeModeDesc = document.getElementById('welcome-mode-desc');
   const headerModeText = document.getElementById('header-mode-text');
   const resultModeBadge = document.getElementById('result-mode-badge');
 
@@ -143,18 +140,6 @@
       btnToggleMode.title = `Modo atual: ${isExam ? 'Avaliação (Gabarito no final)' : 'Estudo (Feedback imediato)'}. Toque para alternar (Exige Senha)`;
     }
 
-    // Card em Destaque na Tela Inicial (Identificação do Aluno)
-    if (welcomeModeCard) {
-      welcomeModeCard.className = `welcome-mode-card ${isExam ? 'mode-exam' : 'mode-study'}`;
-    }
-    if (welcomeModeBadge) {
-      welcomeModeBadge.textContent = isExam ? 'MODO AVALIAÇÃO' : 'MODO ESTUDO';
-    }
-    if (welcomeModeDesc) {
-      welcomeModeDesc.textContent = isExam 
-        ? 'Respostas salvas e pontuação exibida apenas no final do teste' 
-        : 'Explicações e gabarito exibidos imediatamente após cada questão';
-    }
     if (btnStartQuiz) {
       btnStartQuiz.textContent = isExam ? 'Iniciar Avaliação →' : 'Iniciar Treino de Estudo →';
     }
