@@ -1,4 +1,4 @@
-# 📱 Quiz Tablet Pro
+# 🌿 Avaliação Garden Gold
 
 Aplicativo web de múltipla escolha com suporte a múltiplas imagens por questão, desenvolvido sob medida para **Tablets Android** (touch amigável, botões largos, tela cheia, modo paisagem/retrato e zoom em imagens).
 

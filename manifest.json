@@ -1,12 +1,12 @@
 {
-  "name": "Quiz Tablet Pro",
-  "short_name": "QuizTablet",
-  "description": "Aplicativo web de múltipla escolha com imagens otimizado para Tablet Android",
+  "name": "Avaliação Garden Gold",
+  "short_name": "Garden Gold",
+  "description": "Avaliação Garden Gold - Aplicativo web interativo para Tablet Android",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "background_color": "#0b0f19",
+  "theme_color": "#ca8a04",
   "icons": [
     {
       "src": "images/icon-192.png",

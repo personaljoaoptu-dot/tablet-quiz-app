@@ -1,7 +1,7 @@
 {
-  "name": "quiz-tablet-app",
+  "name": "avaliacao-garden-gold",
   "version": "1.0.0",
-  "description": "Aplicativo web de múltipla escolha com imagens para Tablet Android",
+  "description": "Avaliação Garden Gold - Aplicativo web para Tablet Android",
   "scripts": {
     "start": "serve -l 8080"
   },
