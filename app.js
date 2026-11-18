@@ -181,6 +181,21 @@
     }
   }
 
+  function tryEnableFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+          el.requestFullscreen().catch(() => {});
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {
+      // Ignora restrições do navegador se houver
+    }
+  }
+
   // --- Iniciar Avaliação com o Nome Completo ---
   function handleStartQuiz() {
     const name = studentNameInput.value.trim();
@@ -194,6 +209,8 @@
       alert('Ainda não há questões cadastradas em questions.json. Adicione as questões para iniciar!');
       return;
     }
+
+    tryEnableFullscreen();
 
     candidateName = name;
     displayStudentName.textContent = candidateName;
@@ -681,6 +698,7 @@
         unlockError.style.display = 'none';
         appUnlockPin.value = '';
         playSuccessSound();
+        tryEnableFullscreen();
         setTimeout(() => studentNameInput.focus(), 250);
       } else {
         playErrorSound();
