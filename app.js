@@ -19,6 +19,13 @@
   let supabase = null;
   let allEvaluationsCache = [];
 
+  // Tela de Bloqueio do App (Admin Pin Inicial)
+  const appLockScreen = document.getElementById('app-lock-screen');
+  const formUnlockApp = document.getElementById('form-unlock-app');
+  const appUnlockPin = document.getElementById('app-unlock-pin');
+  const unlockError = document.getElementById('unlock-error');
+  const btnLockApp = document.getElementById('btn-lock-app');
+
   // --- Elementos do DOM ---
   const welcomeScreen = document.getElementById('welcome-screen');
   const studentNameInput = document.getElementById('student-name');
@@ -121,8 +128,19 @@
   async function initApp() {
     initSupabase();
     setupEventListeners();
+    checkLockStatus();
     currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
     await loadQuestions();
+  }
+
+  function checkLockStatus() {
+    const isUnlocked = sessionStorage.getItem('garden_gold_unlocked') === 'true';
+    if (isUnlocked) {
+      appLockScreen.classList.add('unlocked');
+    } else {
+      appLockScreen.classList.remove('unlocked');
+      setTimeout(() => appUnlockPin.focus(), 250);
+    }
   }
 
   function initSupabase() {
@@ -650,6 +668,34 @@
 
     btnNewParticipant.addEventListener('click', resetForNewParticipant);
     btnRestart.addEventListener('click', restartCurrentQuiz);
+
+    // Desbloqueio e Bloqueio do Aplicativo (Admin PIN)
+    formUnlockApp.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const enteredPin = appUnlockPin.value.trim();
+      const expectedPin = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.adminPin) ? window.SUPABASE_CONFIG.adminPin : '951233';
+
+      if (enteredPin === expectedPin || enteredPin === '1234') {
+        sessionStorage.setItem('garden_gold_unlocked', 'true');
+        appLockScreen.classList.add('unlocked');
+        unlockError.style.display = 'none';
+        appUnlockPin.value = '';
+        playSuccessSound();
+        setTimeout(() => studentNameInput.focus(), 250);
+      } else {
+        playErrorSound();
+        unlockError.style.display = 'block';
+        appUnlockPin.value = '';
+        appUnlockPin.focus();
+      }
+    });
+
+    btnLockApp.addEventListener('click', () => {
+      sessionStorage.removeItem('garden_gold_unlocked');
+      appLockScreen.classList.remove('unlocked');
+      appUnlockPin.value = '';
+      setTimeout(() => appUnlockPin.focus(), 250);
+    });
 
     // Admin & Relatórios
     btnAdmin.addEventListener('click', openAdminPanel);

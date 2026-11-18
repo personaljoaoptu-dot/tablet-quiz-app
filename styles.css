@@ -726,6 +726,55 @@ body {
 }
 
 /* ==========================================================================
+   Tela de Bloqueio Inicial do App (Senha do Administrador para Liberar)
+   ========================================================================== */
+.app-lock-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-main);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-lock-overlay.unlocked {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lock-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.3s ease;
+}
+
+.lock-card h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.lock-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
    Tela Inicial de Boas-Vindas e Identificação do Aluno / Candidato
    ========================================================================== */
 .welcome-screen {
