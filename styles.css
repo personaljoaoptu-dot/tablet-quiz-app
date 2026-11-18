@@ -753,8 +753,8 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 44px 34px;
-  max-width: 500px;
+  padding: 40px 30px;
+  max-width: 480px;
   width: 100%;
   text-align: center;
   box-shadow: var(--shadow-lg);
@@ -784,20 +784,23 @@ body.light-theme .lock-badge {
 }
 
 .lock-app-title, .welcome-title {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
-  color: var(--text-main);
   margin-bottom: 12px;
   letter-spacing: -0.02em;
+  color: #facc15;
+  background: linear-gradient(135deg, #fef08a 0%, #facc15 40%, #eab308 70%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 14px rgba(202, 138, 4, 0.25);
 }
 
-.gold-highlight {
-  color: #ca8a04;
-  font-weight: 800;
-}
-
-body.light-theme .gold-highlight {
+body.light-theme .lock-app-title, body.light-theme .welcome-title {
   color: #b45309;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #92400e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
 }
 
 .lock-subtitle {
@@ -837,14 +840,14 @@ body.light-theme .gold-highlight {
 }
 
 .welcome-main-logo {
-  max-height: 145px;
-  max-width: 320px;
-  width: 90%;
+  height: 125px;
+  width: auto;
+  max-width: 260px;
   object-fit: contain;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
   background: #ffffff;
-  padding: 12px 18px;
+  padding: 8px 16px;
 }
 
 .welcome-logo {
