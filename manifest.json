@@ -6,9 +6,11 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "orientation": "any",
   "background_color": "#0b0f19",
   "theme_color": "#ca8a04",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/images/icon-192.png",
@@ -33,6 +35,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/images/logo-garden-gold.png",
+      "sizes": "480x357",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
