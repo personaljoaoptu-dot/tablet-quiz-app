@@ -3,17 +3,20 @@
  * Habilita instalação PWA (WebAPK) no Android Chrome e suporte offline
  */
 
-const CACHE_NAME = 'garden-gold-v2.7';
+const CACHE_NAME = 'garden-gold-v2.8';
 const ASSETS_TO_CACHE = [
   '/',
+  '/favicon.ico',
   '/styles.css',
   '/app.js',
   '/config.js',
   '/questions.js',
   '/manifest.json',
   '/images/logo-garden-gold.png',
+  '/images/icon-32.png',
   '/images/icon-192.png',
-  '/images/icon-512.png'
+  '/images/icon-512.png',
+  '/images/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
