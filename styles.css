@@ -165,6 +165,177 @@ body {
   fill: currentColor;
 }
 
+/* --- Botão / Pílula Indicadora de Modo no Topo --- */
+.mode-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+  font-family: inherit;
+}
+
+.mode-pill-btn.mode-exam {
+  background: rgba(234, 179, 8, 0.16);
+  border-color: rgba(234, 179, 8, 0.5);
+  color: #facc15;
+}
+
+.mode-pill-btn.mode-exam:hover, .mode-pill-btn.mode-exam:active {
+  background: rgba(234, 179, 8, 0.26);
+  border-color: #facc15;
+}
+
+.mode-pill-btn.mode-exam .mode-pill-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #facc15;
+  box-shadow: 0 0 10px #facc15;
+  flex-shrink: 0;
+}
+
+.mode-pill-btn.mode-study {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+}
+
+.mode-pill-btn.mode-study:hover, .mode-pill-btn.mode-study:active {
+  background: rgba(16, 185, 129, 0.26);
+  border-color: #34d399;
+}
+
+.mode-pill-btn.mode-study .mode-pill-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  flex-shrink: 0;
+}
+
+.mode-pill-lock {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+/* Light theme do pill */
+body.light-theme .mode-pill-btn.mode-exam {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+body.light-theme .mode-pill-btn.mode-exam .mode-pill-dot {
+  background: #d97706;
+  box-shadow: 0 0 6px #d97706;
+}
+
+body.light-theme .mode-pill-btn.mode-study {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+body.light-theme .mode-pill-btn.mode-study .mode-pill-dot {
+  background: #059669;
+  box-shadow: 0 0 6px #059669;
+}
+
+/* Card de Modo na Tela Inicial */
+.welcome-mode-card {
+  margin-bottom: 22px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.welcome-mode-card.mode-exam {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+.welcome-mode-card.mode-study {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.welcome-mode-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.welcome-mode-card.mode-exam .welcome-mode-badge {
+  background: #ca8a04;
+  color: #ffffff;
+}
+
+.welcome-mode-card.mode-study .welcome-mode-badge {
+  background: #059669;
+  color: #ffffff;
+}
+
+.welcome-mode-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Badges de Modo no Quiz e nos Resultados */
+.badge-mode {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-mode.badge-exam {
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.badge-mode.badge-study {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+body.light-theme .badge-mode.badge-exam {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+body.light-theme .badge-mode.badge-study {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #10b981;
+}
+
 /* ==========================================================================
    Layout Principal (Otimizado para Tablet)
    ========================================================================== */

@@ -10,7 +10,7 @@
   let questions = [];
   let currentIndex = 0;
   let userAnswers = {}; // { [qIndex]: { selectedIndex: number, isCorrect: boolean } }
-  let mode = 'exam'; // 'exam' (modo avaliação) ou 'study' (treino com feedback na hora)
+  let mode = localStorage.getItem('garden_gold_mode') || 'exam'; // 'exam' (modo avaliação) ou 'study' (treino com feedback na hora)
   let soundEnabled = true;
   let candidateName = '';
   let examStartTime = null;
@@ -30,8 +30,14 @@
   const welcomeScreen = document.getElementById('welcome-screen');
   const studentNameInput = document.getElementById('student-name');
   const formStartQuiz = document.getElementById('form-start-quiz');
+  const btnStartQuiz = document.getElementById('btn-start-quiz');
   const quizTotalCount = document.getElementById('quiz-total-count');
   const displayStudentName = document.getElementById('display-student-name');
+  const welcomeModeCard = document.getElementById('welcome-mode-card');
+  const welcomeModeBadge = document.getElementById('welcome-mode-badge');
+  const welcomeModeDesc = document.getElementById('welcome-mode-desc');
+  const headerModeText = document.getElementById('header-mode-text');
+  const resultModeBadge = document.getElementById('result-mode-badge');
 
   const quizTopBar = document.getElementById('quiz-top-bar');
   const quizArea = document.getElementById('quiz-area');
@@ -124,12 +130,56 @@
     playTone(400, 0.04);
   }
 
+  // --- Indicador Centralizado de Modo (Avaliação vs Estudo) ---
+  function updateModeDisplay() {
+    const isExam = (mode === 'exam');
+
+    // Botão / Pílula do Cabeçalho
+    if (headerModeText) {
+      headerModeText.textContent = isExam ? 'Modo: Avaliação' : 'Modo: Estudo';
+    }
+    if (btnToggleMode) {
+      btnToggleMode.className = `mode-pill-btn ${isExam ? 'mode-exam' : 'mode-study'}`;
+      btnToggleMode.title = `Modo atual: ${isExam ? 'Avaliação (Gabarito no final)' : 'Estudo (Feedback imediato)'}. Toque para alternar (Exige Senha)`;
+    }
+
+    // Card em Destaque na Tela Inicial (Identificação do Aluno)
+    if (welcomeModeCard) {
+      welcomeModeCard.className = `welcome-mode-card ${isExam ? 'mode-exam' : 'mode-study'}`;
+    }
+    if (welcomeModeBadge) {
+      welcomeModeBadge.textContent = isExam ? 'MODO AVALIAÇÃO' : 'MODO ESTUDO';
+    }
+    if (welcomeModeDesc) {
+      welcomeModeDesc.textContent = isExam 
+        ? 'Respostas salvas e pontuação exibida apenas no final do teste' 
+        : 'Explicações e gabarito exibidos imediatamente após cada questão';
+    }
+    if (btnStartQuiz) {
+      btnStartQuiz.textContent = isExam ? 'Iniciar Avaliação →' : 'Iniciar Treino de Estudo →';
+    }
+
+    // Barra Superior do Quiz (Durante o Teste)
+    if (currentModeLabel) {
+      currentModeLabel.textContent = isExam ? 'Avaliação' : 'Estudo';
+      currentModeLabel.className = `stat-val badge-mode ${isExam ? 'badge-exam' : 'badge-study'}`;
+    }
+
+    // Tela de Resultados Finais
+    if (resultModeBadge) {
+      resultModeBadge.textContent = isExam ? 'Modo Avaliação' : 'Modo Estudo';
+      resultModeBadge.className = `badge-mode ${isExam ? 'badge-exam' : 'badge-study'}`;
+    }
+
+    localStorage.setItem('garden_gold_mode', mode);
+  }
+
   // --- Inicialização ---
   async function initApp() {
     initSupabase();
     setupEventListeners();
     checkLockStatus();
-    currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
+    updateModeDisplay();
     await loadQuestions();
   }
 
@@ -383,6 +433,10 @@
     resultStudentName.textContent = candidateName || 'Não identificado';
     const now = new Date();
     resultDate.textContent = `Realizado em: ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR')}`;
+    if (resultModeBadge) {
+      resultModeBadge.textContent = (mode === 'exam') ? 'Modo Avaliação' : 'Modo Estudo';
+      resultModeBadge.className = `badge-mode ${mode === 'exam' ? 'badge-exam' : 'badge-study'}`;
+    }
 
     let correctCount = 0;
     questions.forEach((q, idx) => {
@@ -779,12 +833,12 @@
       }
 
       mode = (mode === 'exam') ? 'study' : 'exam';
-      currentModeLabel.textContent = (mode === 'exam') ? 'Avaliação' : 'Treino';
+      updateModeDisplay();
       if (welcomeScreen.style.display === 'none') {
         renderQuestion(currentIndex);
       }
       playSuccessSound();
-      alert(`Modo alterado com sucesso para: ${mode === 'exam' ? 'Modo Avaliação (resultado no final)' : 'Modo Treino (feedback imediato)'}`);
+      alert(`Modo alterado com sucesso para: ${mode === 'exam' ? 'Modo Avaliação (resultado no final)' : 'Modo Estudo (feedback imediato)'}`);
     });
 
     btnSound.addEventListener('click', () => {
