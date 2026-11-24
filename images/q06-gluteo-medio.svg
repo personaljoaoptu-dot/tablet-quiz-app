@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141c2e"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+    <linearGradient id="muscleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185"/>
+      <stop offset="40%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#9f1239"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo com Borda Elegante -->
+  <rect width="700" height="460" rx="16" fill="url(#bgGrad)"/>
+  <rect x="1" y="1" width="698" height="458" rx="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  
+  <!-- Grid sutil de fundo para estética técnica -->
+  <g stroke="rgba(255,255,255,0.025)" stroke-width="1">
+    <line x1="0" y1="90" x2="700" y2="90"/>
+    <line x1="0" y1="180" x2="700" y2="180"/>
+    <line x1="0" y1="270" x2="700" y2="270"/>
+    <line x1="0" y1="360" x2="700" y2="360"/>
+    <line x1="175" y1="0" x2="175" y2="380"/>
+    <line x1="350" y1="0" x2="350" y2="380"/>
+    <line x1="525" y1="0" x2="525" y2="380"/>
+  </g>
+
+  <!-- Cabeçalho do Card -->
+  <g transform="translate(24, 20)">
+    <!-- Badge da Categoria -->
+    <rect x="0" y="0" width="95" height="24" rx="12" fill="rgba(202, 138, 4, 0.2)" stroke="rgba(234, 179, 8, 0.4)" stroke-width="1"/>
+    <text x="47.5" y="16" fill="#facc15" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing="1" text-anchor="middle">3. GLÚTEOS</text>
+    
+    <!-- Título Principal -->
+    <text x="0" y="44" fill="#f8fafc" font-family="'Inter', system-ui, sans-serif" font-size="19" font-weight="800" letter-spacing="-0.3">Músculo Glúteo Médio (Gluteus Medius)</text>
+    <text x="0" y="62" fill="#94a3b8" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="500">Principal estabilizador da pelve no plano frontal e abdutor do quadril</text>
+  </g>
+
+  <!-- Conteúdo Ilustrativo Central -->
+  <g transform="translate(0, 75)">
+    
+    <!-- Ílio Lateral -->
+    <path d="M 220 50 Q 300 20 380 60 Q 360 140 310 160 Q 250 140 220 50 Z" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+    <text x="300" y="40" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Asa do Ílio (Face Externa)</text>
+
+    <!-- Fêmur e Trocanter Maior -->
+    <path d="M 290 190 L 320 190 L 315 310 L 295 310 Z" fill="#334155" stroke="#475569" stroke-width="2"/>
+    <path d="M 280 170 Q 275 195 295 200 L 290 175 Z" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+    <text x="210" y="185" fill="#facc15" font-family="'Inter', sans-serif" font-size="10" font-weight="700">Trocanter Maior</text>
+
+    <!-- Músculo Glúteo Médio em Leque -->
+    <path d="M 235 65 C 290 50 365 75 355 105 C 330 145 305 175 285 180 C 275 160 250 115 235 65 Z" fill="url(#muscleGrad)" stroke="#f43f5e" stroke-width="2"/>
+
+    <!-- Fibras em leque convergindo para o trocanter -->
+    <g stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round">
+      <line x1="250" y1="75" x2="285" y2="175"/>
+      <line x1="295" y1="65" x2="288" y2="175"/>
+      <line x1="335" y1="80" x2="292" y2="175"/>
+    </g>
+
+    <!-- Origem e Inserção -->
+    <circle cx="295" cy="65" r="8" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5"/>
+    <text x="295" y="69" fill="#fff" font-family="'Inter', sans-serif" font-size="10" font-weight="900" text-anchor="middle">O</text>
+
+    <circle cx="288" cy="180" r="8" fill="#b45309" stroke="#facc15" stroke-width="2.5"/>
+    <text x="288" y="184" fill="#fff" font-family="'Inter', sans-serif" font-size="10" font-weight="900" text-anchor="middle">I</text>
+
+    <!-- Vetor de Abdução (Seta Lateral) -->
+    <g transform="translate(160, 100)">
+      <path d="M 50 40 Q 20 20 0 0" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="-4,8 0,0 8,2" fill="#38bdf8"/>
+      <text x="-15" y="-10" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="12" font-weight="800">Abdução</text>
+    </g>
+
+    <!-- Importância Clínica: Trendelenburg -->
+    <rect x="420" y="65" width="220" height="95" rx="8" fill="#0f172a" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5"/>
+    <text x="530" y="85" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="11" font-weight="800" text-anchor="middle">ESTABILIZAÇÃO PÉLVICA</text>
+    <text x="435" y="105" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">Impede a queda da pelve</text>
+    <text x="435" y="121" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">no lado oposto durante a</text>
+    <text x="435" y="139" fill="#facc15" font-family="'Inter', sans-serif" font-size="11" font-weight="700">marcha (Apoio unipodal)</text>
+  
+  </g>
+
+  <!-- Rodapé com Síntese Cinesiológica -->
+  <g transform="translate(24, 385)">
+    <rect x="0" y="0" width="652" height="58" rx="10" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    
+    <!-- Origem -->
+    <circle cx="20" cy="20" r="7" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+    <text x="20" y="23.5" fill="#fff" font-family="'Inter', sans-serif" font-size="9" font-weight="900" text-anchor="middle">O</text>
+    <text x="34" y="23" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="11">Origem: <tspan fill="#f1f5f9" font-weight="700">Face externa do Ílio (entre as linhas glúteas anterior e posterior)</tspan></text>
+
+    <!-- Inserção -->
+    <circle cx="20" cy="41" r="7" fill="#b45309" stroke="#facc15" stroke-width="2"/>
+    <text x="20" y="44.5" fill="#fff" font-family="'Inter', sans-serif" font-size="9" font-weight="900" text-anchor="middle">I</text>
+    <text x="34" y="44" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="11">Inserção: <tspan fill="#f1f5f9" font-weight="700">Trocanter Maior do Fêmur (face lateral)</tspan></text>
+
+    <!-- Ação -->
+    <line x1="390" y1="10" x2="390" y2="50" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="406" y="24" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="10" font-weight="800" letter-spacing="0.5">AÇÃO PRINCIPAL</text>
+    <text x="406" y="43" fill="#facc15" font-family="'Inter', sans-serif" font-size="12" font-weight="700">Abdução do Quadril e Estabilização Pélvica</text>
+  </g>
+</svg>
