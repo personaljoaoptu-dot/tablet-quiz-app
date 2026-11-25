@@ -247,6 +247,9 @@
         <button class="btn btn-primary btn-large" id="btn-new-participant">
           👤 Próximo Candidato (Novo Teste)
         </button>
+        <button class="btn btn-secondary" id="btn-export-result-pdf" style="border-color: rgba(225, 29, 72, 0.5); color: #f43f5e;">
+          📄 Baixar Meu Relatório (PDF)
+        </button>
         <button class="btn btn-secondary" id="btn-restart">
           ↺ Refazer Avaliação
         </button>
@@ -276,8 +279,11 @@
             <button class="btn btn-secondary" id="btn-refresh-reports">
               🔄 Atualizar
             </button>
-            <button class="btn btn-primary" id="btn-export-csv">
-              📥 Exportar para Excel (CSV)
+            <button class="btn btn-primary" id="btn-export-pdf" style="background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e;">
+              📄 Exportar para PDF
+            </button>
+            <button class="btn btn-secondary" id="btn-export-csv">
+              📥 Excel (CSV)
             </button>
           </div>
         </div>
@@ -322,7 +328,12 @@
     <div class="detail-modal-container">
       <div class="detail-header">
         <h3 id="detail-candidate-title">Respostas de: -</h3>
-        <button class="btn-icon" id="detail-modal-close">✕</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn btn-primary btn-sm" id="btn-export-candidate-pdf" style="background: linear-gradient(135deg, #e11d48, #be123c); border-color: #f43f5e; padding: 6px 12px; font-size: 13px;">
+            📄 Baixar PDF do Aluno
+          </button>
+          <button class="btn-icon" id="detail-modal-close" title="Fechar">✕</button>
+        </div>
       </div>
       <div class="detail-body" id="detail-body">
         <!-- Detalhes questão por questão -->
@@ -341,9 +352,12 @@
     </div>
   </div>
 
-  <script src="config.js?v=2.6"></script>
-  <script src="questions.js?v=2.6"></script>
-  <script src="app.js?v=2.6"></script>
+  <!-- Bibliotecas Locais para Exportação de Relatórios em PDF (Offline) -->
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script src="libs/jspdf.plugin.autotable.min.js"></script>
+  <script src="config.js?v=2.7"></script>
+  <script src="questions.js?v=2.7"></script>
+  <script src="app.js?v=2.7"></script>
   <script>
     // Registro do Service Worker para instalação no Android (PWA)
     if ('serviceWorker' in navigator) {

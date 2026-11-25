@@ -67,6 +67,7 @@
   const adminSearch = document.getElementById('admin-search');
   const btnRefreshReports = document.getElementById('btn-refresh-reports');
   const btnExportCsv = document.getElementById('btn-export-csv');
+  const btnExportPdf = document.getElementById('btn-export-pdf');
   const adminTotalParticipants = document.getElementById('admin-total-participants');
   const adminAverageScore = document.getElementById('admin-average-score');
 
@@ -75,6 +76,9 @@
   const detailCandidateTitle = document.getElementById('detail-candidate-title');
   const detailBody = document.getElementById('detail-body');
   const detailModalClose = document.getElementById('detail-modal-close');
+  const btnExportCandidatePdf = document.getElementById('btn-export-candidate-pdf');
+  const btnExportResultPdf = document.getElementById('btn-export-result-pdf');
+  let currentSelectedCandidate = null;
 
   // Modais e Controles Globais
   const lightbox = document.getElementById('lightbox');
@@ -607,6 +611,7 @@
 
   // --- Visualizar Detalhes das Respostas do Candidato ---
   function openCandidateDetail(candidate) {
+    currentSelectedCandidate = candidate;
     detailCandidateTitle.textContent = `Avaliação de: ${candidate.candidate_name}`;
     detailBody.innerHTML = `
       <div style="margin-bottom: 16px; padding: 12px; background: var(--bg-card-alt); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
@@ -632,6 +637,354 @@
     }
 
     detailModal.classList.add('active');
+  }
+
+  // --- Exportar Relatório Geral Consolidado para PDF ---
+  function exportGeneralReportsPdf() {
+    if (!allEvaluationsCache || allEvaluationsCache.length === 0) {
+      alert('Não há avaliações registradas para exportar.');
+      return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      window.print();
+      return;
+    }
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('pt-BR');
+      const timeStr = now.toLocaleTimeString('pt-BR');
+
+      // Cabeçalho Navy Garden Gold
+      doc.setFillColor(15, 23, 42); // #0f172a
+      doc.rect(0, 0, 210, 36, 'F');
+
+      // Título Dourado Oficial
+      doc.setTextColor(250, 204, 21); // #facc15
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('AVALIAÇÃO GARDEN GOLD', 14, 16);
+
+      // Subtítulo
+      doc.setTextColor(226, 232, 240);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Relatório Consolidado de Desempenho e Avaliações de Alunos', 14, 24);
+
+      // Metadados
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(8.5);
+      doc.text(`Emitido em: ${dateStr} às ${timeStr} | Total: ${allEvaluationsCache.length} participante(s)`, 14, 31);
+
+      // Cards Resumo de Estatísticas
+      const total = allEvaluationsCache.length;
+      const avg = Math.round(allEvaluationsCache.reduce((acc, curr) => acc + (curr.percentage || 0), 0) / total);
+      const approvedCount = allEvaluationsCache.filter(item => (item.percentage || 0) >= 70).length;
+      const approvedRate = Math.round((approvedCount / total) * 100);
+
+      // Card 1: Total
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(14, 42, 58, 18, 2, 2, 'F');
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('TOTAL DE AVALIAÇÕES', 18, 48);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(String(total), 18, 56);
+
+      // Card 2: Média
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(76, 42, 58, 18, 2, 2, 'F');
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('MÉDIA GERAL', 80, 48);
+      doc.setTextColor(202, 138, 4);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${avg}%`, 80, 56);
+
+      // Card 3: Taxa de Aprovação (>= 70%)
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(138, 42, 58, 18, 2, 2, 'F');
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('APROVAÇÃO (>= 70%)', 142, 48);
+      doc.setTextColor(16, 185, 129);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${approvedCount} (${approvedRate}%)`, 142, 56);
+
+      // Tabela de Dados
+      const tableData = allEvaluationsCache.map((item, idx) => {
+        const itemDate = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : '-';
+        const pct = item.percentage !== undefined ? item.percentage : Math.round(((item.score || 0) / (item.total || 1)) * 100);
+        const status = pct >= 70 ? 'APROVADO' : 'EM ANÁLISE';
+        const modeLabel = item.mode === 'study' ? 'Estudo' : 'Avaliação';
+        return [
+          String(idx + 1),
+          itemDate,
+          item.candidate_name || 'Anônimo',
+          modeLabel,
+          `${item.score} / ${item.total}`,
+          `${pct}%`,
+          status
+        ];
+      });
+
+      doc.autoTable({
+        startY: 66,
+        head: [['#', 'Data / Hora', 'Nome do Candidato', 'Modo', 'Acertos', 'Aprov.', 'Situação']],
+        body: tableData,
+        theme: 'striped',
+        styles: {
+          font: 'helvetica',
+          fontSize: 8.5,
+          cellPadding: 3,
+          overflow: 'linebreak'
+        },
+        headStyles: {
+          fillColor: [15, 23, 42],
+          textColor: [250, 204, 21],
+          fontStyle: 'bold',
+          halign: 'left'
+        },
+        columnStyles: {
+          0: { cellWidth: 8, halign: 'center' },
+          1: { cellWidth: 34 },
+          2: { cellWidth: 54 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 20, halign: 'center' },
+          5: { cellWidth: 18, halign: 'center', fontStyle: 'bold' },
+          6: { cellWidth: 26, halign: 'center', fontStyle: 'bold' }
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.column.index === 6) {
+            if (data.cell.raw === 'APROVADO') {
+              data.cell.styles.textColor = [16, 185, 129];
+            } else {
+              data.cell.styles.textColor = [239, 68, 68];
+            }
+          }
+        },
+        margin: { left: 14, right: 14 }
+      });
+
+      // Rodapé
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(
+          `Garden Gold Academia • Sistema de Gestão de Desempenho • Página ${i} de ${pageCount}`,
+          14,
+          290
+        );
+      }
+
+      doc.save(`relatorio_geral_garden_gold_${Date.now()}.pdf`);
+      playSuccessSound();
+    } catch (err) {
+      console.error('Erro ao gerar PDF geral:', err);
+      alert('Houve um erro ao gerar o arquivo PDF. Tente novamente.');
+    }
+  }
+
+  // --- Exportar Relatório Individual do Candidato para PDF ---
+  function exportCandidatePdf(candidate) {
+    if (!candidate) {
+      alert('Nenhum candidato selecionado para exportação.');
+      return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      window.print();
+      return;
+    }
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const candName = candidate.candidate_name || 'Candidato';
+      const dateStr = candidate.created_at ? new Date(candidate.created_at).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+      const pct = candidate.percentage !== undefined ? candidate.percentage : Math.round(((candidate.score || 0) / (candidate.total || 1)) * 100);
+      const isApproved = pct >= 70;
+      const statusText = isApproved ? 'APROVADO' : 'NÃO ATINGIU A MÉDIA MÍNIMA (70%)';
+
+      // Top Banner
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 210, 36, 'F');
+
+      doc.setTextColor(250, 204, 21);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(17);
+      doc.text('AVALIAÇÃO GARDEN GOLD', 14, 15);
+
+      doc.setTextColor(226, 232, 240);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Boletim Individual de Desempenho do Aluno / Candidato', 14, 23);
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(8.5);
+      doc.text(`Registro Oficial de Avaliação • Emitido em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
+
+      // Box do Candidato
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(14, 42, 182, 30, 2, 2, 'F');
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(14, 42, 182, 30, 2, 2, 'S');
+
+      // Nome do Candidato
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.text(`Candidato: ${candName}`, 20, 52);
+
+      // Detalhes da Prova
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Data do Teste: ${dateStr}`, 20, 60);
+      doc.text(`Modo Realizado: ${candidate.mode === 'study' ? 'Treino (Estudo)' : 'Avaliação Oficial'}`, 20, 66);
+
+      // Pontuação em Destaque no Box
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(isApproved ? 16 : 225, isApproved ? 185 : 29, isApproved ? 129 : 72);
+      doc.text(`${candidate.score} / ${candidate.total} (${pct}%)`, 130, 54);
+
+      doc.setFontSize(8.5);
+      doc.text(`Situação: ${statusText}`, 130, 63);
+
+      // Tabela Detalhada de Respostas Questão por Questão
+      const tableRows = [];
+      if (candidate.answers && Array.isArray(candidate.answers) && candidate.answers.length > 0) {
+        candidate.answers.forEach(ans => {
+          tableRows.push([
+            String(ans.q_num),
+            ans.question || '',
+            ans.selected || '',
+            ans.correct || '',
+            ans.is_correct ? 'CORRETO' : 'INCORRETO'
+          ]);
+        });
+      }
+
+      if (tableRows.length > 0) {
+        doc.autoTable({
+          startY: 78,
+          head: [['#', 'Enunciado da Questão', 'Resposta Marcada', 'Gabarito Oficial', 'Resultado']],
+          body: tableRows,
+          theme: 'grid',
+          styles: {
+            font: 'helvetica',
+            fontSize: 7.5,
+            cellPadding: 2.5,
+            overflow: 'linebreak'
+          },
+          headStyles: {
+            fillColor: [15, 23, 42],
+            textColor: [250, 204, 21],
+            fontStyle: 'bold',
+            halign: 'left'
+          },
+          columnStyles: {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 70 },
+            2: { cellWidth: 42 },
+            3: { cellWidth: 42 },
+            4: { cellWidth: 20, halign: 'center', fontStyle: 'bold' }
+          },
+          didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 4) {
+              if (data.cell.raw === 'CORRETO') {
+                data.cell.styles.textColor = [16, 185, 129];
+              } else {
+                data.cell.styles.textColor = [239, 68, 68];
+              }
+            }
+          },
+          margin: { left: 14, right: 14 }
+        });
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(148, 163, 184);
+        doc.text('Detalhamento questão por questão não disponível para esta avaliação.', 14, 85);
+      }
+
+      // Rodapé
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(
+          `Garden Gold Academia • Avaliação Oficial de Anatomia e Cinesiologia • Página ${i} de ${pageCount}`,
+          14,
+          290
+        );
+      }
+
+      const safeName = candName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      doc.save(`avaliacao_garden_gold_${safeName}.pdf`);
+      playSuccessSound();
+    } catch (err) {
+      console.error('Erro ao gerar PDF do candidato:', err);
+      alert('Erro ao gerar o PDF individual do aluno.');
+    }
+  }
+
+  // --- Exportar Relatório do Candidato Atual da Tela de Resultados ---
+  function exportCurrentCandidateResultPdf() {
+    const candidateAnswers = [];
+    questions.forEach((q, idx) => {
+      const uAns = userAnswers[idx];
+      candidateAnswers.push({
+        q_num: idx + 1,
+        question: q.question,
+        selected: uAns !== undefined && uAns.selectedIndex !== undefined ? q.options[uAns.selectedIndex] : 'Em branco',
+        correct: q.options[q.correctIndex],
+        is_correct: uAns ? uAns.isCorrect : false
+      });
+    });
+
+    let correctCount = 0;
+    questions.forEach((q, idx) => {
+      if (userAnswers[idx] && userAnswers[idx].isCorrect) correctCount++;
+    });
+
+    const currentEval = {
+      candidate_name: candidateName || 'Candidato',
+      created_at: examStartTime ? examStartTime.toISOString() : new Date().toISOString(),
+      score: correctCount,
+      total: questions.length,
+      percentage: Math.round((correctCount / questions.length) * 100),
+      mode: mode,
+      answers: candidateAnswers
+    };
+
+    exportCandidatePdf(currentEval);
   }
 
   // --- Exportar para Planilha Excel (CSV) ---
@@ -789,6 +1142,16 @@
     detailModalClose.addEventListener('click', () => detailModal.classList.remove('active'));
     btnRefreshReports.addEventListener('click', loadReportsData);
     btnExportCsv.addEventListener('click', exportToCsv);
+    if (btnExportPdf) btnExportPdf.addEventListener('click', exportGeneralReportsPdf);
+    if (btnExportCandidatePdf) {
+      btnExportCandidatePdf.addEventListener('click', () => {
+        if (currentSelectedCandidate) exportCandidatePdf(currentSelectedCandidate);
+        else alert('Selecione um candidato para exportar.');
+      });
+    }
+    if (btnExportResultPdf) {
+      btnExportResultPdf.addEventListener('click', exportCurrentCandidateResultPdf);
+    }
 
     adminSearch.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
